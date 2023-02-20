@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @RestController
-@RequestMapping(value = "book")
+@RequestMapping(value = "book/")
 public class BookController {
     private final BookRepository bookRepository;
 
@@ -19,16 +19,19 @@ public class BookController {
         this.bookRepository = bookRepository;
     }
 
-    @GetMapping("/")
+    @GetMapping()
     private ResponseEntity<List<Book>> getAllBooks() {
         List<Book> list = bookRepository.findAll();
         return ResponseEntity.ok(list);
     }
 
-    @GetMapping("/{id}")
-    private ResponseEntity<Book> getBook(@PathVariable String id) {
+    @GetMapping("{id}")
+    private ResponseEntity<Book> getBook(@PathVariable Optional<Long> id) {
+        if (id.isEmpty())
+            return ResponseEntity.badRequest().build();
+
         return bookRepository
-                .findById(Long.getLong(id))
+                .findById(id.get())
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
@@ -46,10 +49,12 @@ public class BookController {
         return ResponseEntity.ok(book);
     }
 
-    @DeleteMapping("/{id}")
-    @GetMapping("/{id}")
-    private ResponseEntity<Book> removeBook(@PathVariable String id) {
-        Optional<Book> book = bookRepository.findById(Long.getLong(id));
+    @DeleteMapping("{id}")
+    private ResponseEntity<Book> removeBook(@PathVariable Optional<Long> id) {
+        if (id.isEmpty())
+            return ResponseEntity.badRequest().build();
+
+        Optional<Book> book = bookRepository.findById(id.get());
 
         book.ifPresent(value -> bookRepository.deleteById(value.getId()));
 
