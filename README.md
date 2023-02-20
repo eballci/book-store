@@ -65,8 +65,7 @@ Here are some examples of data types
   {
     "id": 2,
     "name": "I, Robot"
-  },
-  ...
+  }
 ]
 ````
 
